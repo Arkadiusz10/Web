@@ -7,12 +7,14 @@ async def handler(websocket, path):
     clients.add(websocket)
     try:
         async for message in websocket:
-            # Rozsyłanie wiadomości do wszystkich klientów
+            # Wysyłanie wiadomości do wszystkich klientów
             await asyncio.gather(*[client.send(message) for client in clients if client != websocket])
     finally:
         clients.remove(websocket)
 
-start_server = websockets.serve(handler, "0.0.0.0", 8000)
+async def main():
+    async with websockets.serve(handler, "0.0.0.0", 8000):
+        await asyncio.Future()  # Utrzymuje serwer przy życiu
 
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+if __name__ == "__main__":
+    asyncio.run(main())  # Poprawne uruchomienie pętli zdarzeń
